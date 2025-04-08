@@ -125,24 +125,37 @@
           }
         
           localStorage.setItem("trials", JSON.stringify(trials));
-          updateSavedTrials();
+          
+          // Update saved trials list without reloading the page
+          displaySavedTrials();
+          resetForm();
         }
         
-  function updateSavedTrials() {
-      const trials = JSON.parse(localStorage.getItem("trials")) || [];
-      const savedTrialsList = document.getElementById("savedTrials");
-      savedTrialsList.innerHTML = "";
-
-      trials.forEach((trial, index) => {
-          const li = document.createElement("li");
-          li.innerHTML = `
-              <strong>${trial.name}</strong>: ${trial.description}
-              <button class="button" onclick="editTrial(${index})">Edit</button>
-          `;
-          savedTrialsList.appendChild(li);
-      });
-  }
-
+        function displaySavedTrials() {
+          const trials = JSON.parse(localStorage.getItem("trials")) || [];
+          const savedTrials = document.getElementById("savedTrials");
+          savedTrials.innerHTML = "";  // Clear the current list
+        
+          trials.forEach((trial, index) => {
+            const li = document.createElement("li");
+            li.textContent = `${trial.name} - ${trial.description}`;
+            
+            const editButton = document.createElement("button");
+            editButton.textContent = "Edit";
+            editButton.onclick = () => editTrial(index);
+            
+            li.appendChild(editButton);
+            savedTrials.appendChild(li);
+          });
+        }
+        
+        function resetForm() {
+          document.getElementById("trialName").value = "";
+          document.getElementById("trialDescription").value = "";
+          treatments = [];  // Reset treatments array
+          updateTreatmentList();  // Clear the treatment list
+        }
+        
   function editTrial(index) {
       const trials = JSON.parse(localStorage.getItem("trials")) || [];
       const trial = trials[index];
