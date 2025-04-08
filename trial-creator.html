@@ -129,10 +129,6 @@
           displaySavedTrials();
         }
         
-          localStorage.setItem("trials", JSON.stringify(trials));
-          updateSavedTrials();
-        }
-        
   function updateSavedTrials() {
       const trials = JSON.parse(localStorage.getItem("trials")) || [];
       const savedTrialsList = document.getElementById("savedTrials");
