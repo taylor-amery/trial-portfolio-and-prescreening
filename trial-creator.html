@@ -102,6 +102,12 @@
           const saveButton = document.getElementById("saveTrialButton");
           const editingIndex = saveButton.getAttribute("data-index");
         
+          // If editing, ignore the current trial in the duplicate name check
+          if (trials.some((t, index) => t.name === name && index != editingIndex)) {
+            alert("Trial name already exists.");
+            return;
+          }
+        
           const rules = [];
           document.querySelectorAll("#ruleList .rule").forEach(ruleDiv => {
             const type = ruleDiv.querySelector("select").value;
@@ -109,24 +115,19 @@
             rules.push({ type, treatments: selectedTreatments });
           });
         
-          const newTrial = {
-            name,
-            description,
-            treatments: [...treatments], // current treatment list
-            rules: rules // current rules
-          };
+          const trialData = { name, description, treatments, rules };
         
           if (editingIndex !== null) {
-            trials[editingIndex] = newTrial;
-            saveButton.removeAttribute("data-index");
+            trials[editingIndex] = trialData;
+            saveButton.removeAttribute("data-index"); // Clear editing state
           } else {
-            const duplicate = trials.find(trial => trial.name === name);
-            if (duplicate) {
-              alert("Trial name already exists.");
-              return;
-            }
-            trials.push(newTrial);
+            trials.push(trialData);
           }
+        
+          localStorage.setItem("trials", JSON.stringify(trials));
+          resetForm();
+          displaySavedTrials();
+        }
         
           localStorage.setItem("trials", JSON.stringify(trials));
           updateSavedTrials();
