@@ -99,34 +99,38 @@
         
           let trials = JSON.parse(localStorage.getItem("trials")) || [];
         
-          // Check if editing
           const saveButton = document.getElementById("saveTrialButton");
           const editingIndex = saveButton.getAttribute("data-index");
         
+          const rules = [];
+          document.querySelectorAll("#ruleList .rule").forEach(ruleDiv => {
+            const type = ruleDiv.querySelector("select").value;
+            const selectedTreatments = Array.from(ruleDiv.querySelectorAll("select")[1].selectedOptions).map(o => o.value);
+            rules.push({ type, treatments: selectedTreatments });
+          });
+        
           const newTrial = {
             name,
-            description
+            description,
+            treatments: [...treatments], // current treatment list
+            rules: rules // current rules
           };
         
           if (editingIndex !== null) {
-            // Overwrite existing trial
             trials[editingIndex] = newTrial;
-            saveButton.removeAttribute("data-index"); // Clear editing state
+            saveButton.removeAttribute("data-index");
           } else {
-            // Check for duplicate by name
             const duplicate = trials.find(trial => trial.name === name);
             if (duplicate) {
-              alert("A trial with this name already exists.");
+              alert("Trial name already exists.");
               return;
             }
             trials.push(newTrial);
           }
         
           localStorage.setItem("trials", JSON.stringify(trials));
-          renderTrials();
-          document.getElementById("trialForm").reset();
+          updateSavedTrials();
         }
-        
         
         function editTrial(index) {
           const trials = JSON.parse(localStorage.getItem("trials")) || [];
