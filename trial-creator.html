@@ -87,66 +87,75 @@
             ruleDiv.appendChild(treatmentSelect);
             document.getElementById("ruleList").appendChild(ruleDiv);
         }
-        
-        
+             
         function saveTrial() {
-            const trialName = document.getElementById("trialName").value.trim();
-            const trialDescription = document.getElementById("trialDescription").value.trim();
-            if (!trialName) return alert("Trial name is required");
+          const name = document.getElementById("trialName").value.trim();
+          const condition = document.getElementById("trialCondition").value.trim();
         
-            const rules = Array.from(document.querySelectorAll(".rule")).map(rule => {
-                return {
-                    type: rule.children[0].value,
-                    treatments: Array.from(rule.children[1].selectedOptions).map(option => option.value)
-                };
-            });
+          if (!name) {
+            alert("Trial must have a name.");
+            return;
+          }
         
-            let trials = JSON.parse(localStorage.getItem("trials")) || [];
-            const trialData = { name: trialName, description: trialDescription, treatments, rules };
+          let trials = JSON.parse(localStorage.getItem("trials")) || [];
         
-            const index = document.getElementById("saveTrialButton").getAttribute("data-index");
-            if (index !== null) {
-                trials[parseInt(index)] = trialData;
-                document.getElementById("saveTrialButton").removeAttribute("data-index"); // Reset for next save
-            } else {
-                trials.push(trialData);
+          // Check if editing
+          const saveButton = document.getElementById("saveTrialButton");
+          const editingIndex = saveButton.getAttribute("data-index");
+        
+          const newTrial = {
+            name,
+            condition
+          };
+        
+          if (editingIndex !== null) {
+            // Overwrite existing trial
+            trials[editingIndex] = newTrial;
+            saveButton.removeAttribute("data-index"); // Clear editing state
+          } else {
+            // Check for duplicate by name
+            const duplicate = trials.find(trial => trial.name === name);
+            if (duplicate) {
+              alert("A trial with this name already exists.");
+              return;
             }
+            trials.push(newTrial);
+          }
         
-            localStorage.setItem("trials", JSON.stringify(trials));
-            displayTrials();
+          localStorage.setItem("trials", JSON.stringify(trials));
+          renderTrials();
+          document.getElementById("trialForm").reset();
         }
         
-        function displayTrials() {
-            const savedTrials = JSON.parse(localStorage.getItem("trials")) || [];
-            const list = document.getElementById("savedTrials");
-            list.innerHTML = savedTrials.length 
-                ? savedTrials.map((trial, index) => 
-                    `<li>
-                        <strong>${trial.name}</strong>: ${trial.description} 
-                        <button onclick="editTrial(${index})">Edit</button>
-                    </li>`
-                  ).join("")
-                : "<li>No trials saved.</li>";
-        }
-        
-        displayTrials();
         
         function editTrial(index) {
-            const savedTrials = JSON.parse(localStorage.getItem("trials")) || [];
-            const trial = savedTrials[index];
-
-            document.getElementById("trialName").value = trial.name;
-            document.getElementById("trialDescription").value = trial.description;
-
-            treatments = trial.treatments || [];
-            updateTreatmentList();
-            
-            document.getElementById("ruleList").innerHTML = "";
-            trial.rules.forEach(rule => {
-                addRule(rule.type, rule.treatments);
-            });
-
-            document.getElementById("saveTrialButton").setAttribute("data-index", index);
+          const trials = JSON.parse(localStorage.getItem("trials")) || [];
+          const trial = trials[index];
+        
+          document.getElementById("trialName").value = trial.name;
+          document.getElementById("trialCondition").value = trial.condition;
+        
+          const saveButton = document.getElementById("saveTrialButton");
+          saveButton.setAttribute("data-index", index); // Mark for overwrite on save
+        }
+        
+        
+        function renderTrials() {
+          const trials = JSON.parse(localStorage.getItem("trials")) || [];
+          const trialList = document.getElementById("trialList");
+          trialList.innerHTML = "";
+        
+          trials.forEach((trial, index) => {
+            const li = document.createElement("li");
+            li.textContent = `${trial.name} - ${trial.condition}`;
+        
+            const editButton = document.createElement("button");
+            editButton.textContent = "Edit";
+            editButton.onclick = () => editTrial(index);
+        
+            li.appendChild(editButton);
+            trialList.appendChild(li);
+          });
         }
 
     </script>
