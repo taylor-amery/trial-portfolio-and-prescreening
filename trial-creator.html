@@ -143,11 +143,23 @@
           saveButton.setAttribute("data-index", index); // Mark for overwrite on save
         }
         
+        function updateSavedTrials() {
+          const trials = JSON.parse(localStorage.getItem("trials")) || [];
+          const savedTrials = document.getElementById("savedTrials");
+          savedTrials.innerHTML = "";
         
+          trials.forEach((trial, index) => {
+            const li = document.createElement("li");
+            li.textContent = trial.name;
+            li.addEventListener("click", () => loadTrial(index));
+            savedTrials.appendChild(li);
+          });
+        }
+   
         function renderTrials() {
           const trials = JSON.parse(localStorage.getItem("trials")) || [];
-          const trialList = document.getElementById("trialList");
-          trialList.innerHTML = "";
+          const savedTrials = document.getElementById("savedTrials");
+          savedTrials.innerHTML = "";
         
           trials.forEach((trial, index) => {
             const li = document.createElement("li");
@@ -158,7 +170,7 @@
             editButton.onclick = () => editTrial(index);
         
             li.appendChild(editButton);
-            trialList.appendChild(li);
+            savedTrials.appendChild(li);
           });
         }
 
