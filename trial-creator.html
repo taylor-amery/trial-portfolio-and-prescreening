@@ -90,7 +90,7 @@
              
         function saveTrial() {
           const name = document.getElementById("trialName").value.trim();
-          const condition = document.getElementById("trialCondition").value.trim();
+          const description = document.getElementById("trialDescription").value.trim();
         
           if (!name) {
             alert("Trial must have a name.");
@@ -105,7 +105,7 @@
         
           const newTrial = {
             name,
-            condition
+            description
           };
         
           if (editingIndex !== null) {
@@ -133,7 +133,7 @@
           const trial = trials[index];
         
           document.getElementById("trialName").value = trial.name;
-          document.getElementById("trialCondition").value = trial.condition;
+          document.getElementById("trialDescription").value = trial.description;
         
           const saveButton = document.getElementById("saveTrialButton");
           saveButton.setAttribute("data-index", index); // Mark for overwrite on save
