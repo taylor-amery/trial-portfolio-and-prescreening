@@ -174,7 +174,7 @@
   }
 
   // Re-render trials when page loads
-  window.onload = updateSavedTrials;
+  window.onload = displaySavedTrials;
    
         function renderTrials() {
           const trials = JSON.parse(localStorage.getItem("trials")) || [];
