@@ -48,17 +48,36 @@
     </div>
     
     <script>
-        let treatments = [];
-
+        let treatments = JSON.parse(localStorage.getItem("treatments") || "[]");
+    
         function addTreatment() {
             const treatmentInput = document.getElementById("newTreatment").value.trim();
             if (treatmentInput && !treatments.includes(treatmentInput)) {
                 treatments.push(treatmentInput);
+                localStorage.setItem("treatments", JSON.stringify(treatments)); // Persist treatments
                 updateTreatmentList();
+                updateRuleTreatmentOptions();
                 document.getElementById("newTreatment").value = "";
             }
         }
-
+    
+        function updateTreatmentList() {
+            const treatmentList = document.getElementById("treatmentList");
+            treatmentList.innerHTML = treatments.map(t => `<span class="treatment">${t}</span>`).join(" ");
+        }
+    
+        function updateRuleTreatmentOptions() {
+            document.querySelectorAll("#ruleList select[multiple]").forEach(select => {
+                const currentSelections = Array.from(select.selectedOptions).map(o => o.value);
+                select.innerHTML = treatments.map(t => 
+                    `<option value="${t}" ${currentSelections.includes(t) ? "selected" : ""}>${t}</option>`
+                ).join(" ");
+            });
+        }
+    
+        // Don't forget to call this on page load
+        updateTreatmentList();
+    
         function updateTreatmentList() {
             const treatmentList = document.getElementById("treatmentList");
             treatmentList.innerHTML = treatments.map(t => `<span class="treatment">${t}</span>`).join(" ");
