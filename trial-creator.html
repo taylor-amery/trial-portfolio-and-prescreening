@@ -77,11 +77,6 @@
     
         // Don't forget to call this on page load
         updateTreatmentList();
-    
-        function updateTreatmentList() {
-            const treatmentList = document.getElementById("treatmentList");
-            treatmentList.innerHTML = treatments.map(t => `<span class="treatment">${t}</span>`).join(" ");
-        }
       
         function addRule(type = "must", selectedTreatments = []) {
         const ruleDiv = document.createElement("div");
@@ -179,7 +174,6 @@
         function resetForm() {
           document.getElementById("trialName").value = "";
           document.getElementById("trialDescription").value = "";
-          treatments = [];  // Reset treatments array
           updateTreatmentList();  // Clear the treatment list
           document.getElementById("ruleList").innerHTML = ""; // Clear rule list   
           // Remove any editing state
