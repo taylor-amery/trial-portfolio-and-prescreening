@@ -63,30 +63,38 @@
             const treatmentList = document.getElementById("treatmentList");
             treatmentList.innerHTML = treatments.map(t => `<span class="treatment">${t}</span>`).join(" ");
         }
-        
+      
         function addRule(type = "must", selectedTreatments = []) {
-            const ruleDiv = document.createElement("div");
-            ruleDiv.className = "rule";
-        
-            const ruleSelect = document.createElement("select");
-            ruleSelect.innerHTML = `
-                <option value="must">MUST include</option>
-                <option value="must-not">MUST NOT include</option>
-                <option value="at-least-one">AT LEAST ONE OF</option>
-                <option value="at-most-one">AT MOST ONE OF</option>
-            `;
-            ruleSelect.value = type;
-        
-            const treatmentSelect = document.createElement("select");
-            treatmentSelect.multiple = true;
-            treatmentSelect.innerHTML = treatments.map(t => 
-                `<option value="${t}" ${selectedTreatments.includes(t) ? "selected" : ""}>${t}</option>`
-            ).join(" ");
-        
-            ruleDiv.appendChild(ruleSelect);
-            ruleDiv.appendChild(treatmentSelect);
-            document.getElementById("ruleList").appendChild(ruleDiv);
-        }
+        const ruleDiv = document.createElement("div");
+        ruleDiv.className = "rule";
+    
+        const ruleSelect = document.createElement("select");
+        ruleSelect.innerHTML = `
+            <option value="must">MUST include</option>
+            <option value="must-not">MUST NOT include</option>
+            <option value="at-least-one">AT LEAST ONE OF</option>
+            <option value="at-most-one">AT MOST ONE OF</option>
+        `;
+        ruleSelect.value = type;
+    
+        const treatmentSelect = document.createElement("select");
+        treatmentSelect.multiple = true;
+        treatmentSelect.innerHTML = treatments.map(t => 
+            `<option value="${t}" ${selectedTreatments.includes(t) ? "selected" : ""}>${t}</option>`
+        ).join(" ");
+    
+        const deleteButton = document.createElement("button");
+        deleteButton.textContent = "Delete";
+        deleteButton.className = "button";
+        deleteButton.style.marginLeft = "10px";
+        deleteButton.onclick = () => ruleDiv.remove();
+    
+        ruleDiv.appendChild(ruleSelect);
+        ruleDiv.appendChild(treatmentSelect);
+        ruleDiv.appendChild(deleteButton);
+    
+        document.getElementById("ruleList").appendChild(ruleDiv);
+    }
              
         function saveTrial() {
           const name = document.getElementById("trialName").value.trim();
