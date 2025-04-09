@@ -154,7 +154,11 @@
           document.getElementById("trialDescription").value = "";
           treatments = [];  // Reset treatments array
           updateTreatmentList();  // Clear the treatment list
-        }
+          document.getElementById("ruleList").innerHTML = ""; // Clear rule list   
+          // Remove any editing state
+          const saveButton = document.getElementById("saveTrialButton");
+          saveButton.removeAttribute("data-index");
+                }
         
   function editTrial(index) {
       const trials = JSON.parse(localStorage.getItem("trials")) || [];
