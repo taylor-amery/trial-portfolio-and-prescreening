@@ -48,12 +48,14 @@
     </div>
     
     <script>
-        let treatments = JSON.parse(localStorage.getItem("treatments") || "[]");
+        // Initialize treatments from localStorage, using an object
+        let treatments = JSON.parse(localStorage.getItem("treatments") || "{}");
     
+        // Function to add a treatment
         function addTreatment() {
             const treatmentInput = document.getElementById("newTreatment").value.trim();
-            if (treatmentInput && !treatments.includes(treatmentInput)) {
-                treatments.push(treatmentInput);
+            if (treatmentInput && !treatments[treatmentInput]) {
+                treatments[treatmentInput] = { name: treatmentInput }; // Save as object
                 localStorage.setItem("treatments", JSON.stringify(treatments)); // Persist treatments
                 updateTreatmentList();
                 updateRuleTreatmentOptions();
@@ -61,15 +63,17 @@
             }
         }
     
+        // Update the treatment list in the UI
         function updateTreatmentList() {
             const treatmentList = document.getElementById("treatmentList");
-            treatmentList.innerHTML = treatments.map(t => `<span class="treatment">${t}</span>`).join(" ");
+            treatmentList.innerHTML = Object.keys(treatments).map(t => `<span class="treatment">${t}</span>`).join(" ");
         }
     
+        // Update rule options with treatments
         function updateRuleTreatmentOptions() {
             document.querySelectorAll("#ruleList select[multiple]").forEach(select => {
                 const currentSelections = Array.from(select.selectedOptions).map(o => o.value);
-                select.innerHTML = treatments.map(t => 
+                select.innerHTML = Object.keys(treatments).map(t => 
                     `<option value="${t}" ${currentSelections.includes(t) ? "selected" : ""}>${t}</option>`
                 ).join(" ");
             });
@@ -78,38 +82,40 @@
         // Don't forget to call this on page load
         updateTreatmentList();
       
+        // Function to add a rule
         function addRule(type = "must", selectedTreatments = []) {
-        const ruleDiv = document.createElement("div");
-        ruleDiv.className = "rule";
-    
-        const ruleSelect = document.createElement("select");
-        ruleSelect.innerHTML = `
-            <option value="must">MUST include</option>
-            <option value="must-not">MUST NOT include</option>
-            <option value="at-least-one">AT LEAST ONE OF</option>
-            <option value="at-most-one">AT MOST ONE OF</option>
-        `;
-        ruleSelect.value = type;
-    
-        const treatmentSelect = document.createElement("select");
-        treatmentSelect.multiple = true;
-        treatmentSelect.innerHTML = treatments.map(t => 
-            `<option value="${t}" ${selectedTreatments.includes(t) ? "selected" : ""}>${t}</option>`
-        ).join(" ");
-    
-        const deleteButton = document.createElement("button");
-        deleteButton.textContent = "Delete";
-        deleteButton.className = "button";
-        deleteButton.style.marginLeft = "10px";
-        deleteButton.onclick = () => ruleDiv.remove();
-    
-        ruleDiv.appendChild(ruleSelect);
-        ruleDiv.appendChild(treatmentSelect);
-        ruleDiv.appendChild(deleteButton);
-    
-        document.getElementById("ruleList").appendChild(ruleDiv);
-    }
+            const ruleDiv = document.createElement("div");
+            ruleDiv.className = "rule";
+        
+            const ruleSelect = document.createElement("select");
+            ruleSelect.innerHTML = `
+                <option value="must">MUST include</option>
+                <option value="must-not">MUST NOT include</option>
+                <option value="at-least-one">AT LEAST ONE OF</option>
+                <option value="at-most-one">AT MOST ONE OF</option>
+            `;
+            ruleSelect.value = type;
+        
+            const treatmentSelect = document.createElement("select");
+            treatmentSelect.multiple = true;
+            treatmentSelect.innerHTML = Object.keys(treatments).map(t => 
+                `<option value="${t}" ${selectedTreatments.includes(t) ? "selected" : ""}>${t}</option>`
+            ).join(" ");
+        
+            const deleteButton = document.createElement("button");
+            deleteButton.textContent = "Delete";
+            deleteButton.className = "button";
+            deleteButton.style.marginLeft = "10px";
+            deleteButton.onclick = () => ruleDiv.remove();
+        
+            ruleDiv.appendChild(ruleSelect);
+            ruleDiv.appendChild(treatmentSelect);
+            ruleDiv.appendChild(deleteButton);
+        
+            document.getElementById("ruleList").appendChild(ruleDiv);
+        }
              
+        // Function to save the trial
         function saveTrial() {
           const name = document.getElementById("trialName").value.trim();
           const description = document.getElementById("trialDescription").value.trim();
@@ -137,7 +143,7 @@
             rules.push({ type, treatments: selectedTreatments });
           });
         
-          const trialData = { name, description, treatments, rules };
+          const trialData = { name, description, rules };
         
           if (editingIndex !== null) {
             trials[editingIndex] = trialData;
@@ -153,6 +159,7 @@
           resetForm();
         }
         
+        // Function to display saved trials
         function displaySavedTrials() {
           const trials = JSON.parse(localStorage.getItem("trials")) || [];
           const savedTrials = document.getElementById("savedTrials");
@@ -171,54 +178,34 @@
           });
         }
         
+        // Reset the form after saving
         function resetForm() {
           document.getElementById("trialName").value = "";
           document.getElementById("trialDescription").value = "";
-          updateTreatmentList();  // Clear the treatment list
-          document.getElementById("ruleList").innerHTML = ""; // Clear rule list   
-          // Remove any editing state
+          document.getElementById("ruleList").innerHTML = "";
+          updateTreatmentList(); // Treatments stay
+          updateRuleTreatmentOptions(); // Rules stay
           const saveButton = document.getElementById("saveTrialButton");
           saveButton.removeAttribute("data-index");
-                }
+        }
         
-  function editTrial(index) {
-      const trials = JSON.parse(localStorage.getItem("trials")) || [];
-      const trial = trials[index];
+        // Function to edit a trial
+        function editTrial(index) {
+            const trials = JSON.parse(localStorage.getItem("trials")) || [];
+            const trial = trials[index];
 
-      document.getElementById("trialName").value = trial.name;
-      document.getElementById("trialDescription").value = trial.description;
+            document.getElementById("trialName").value = trial.name;
+            document.getElementById("trialDescription").value = trial.description;
 
-      treatments = [...new Set(trial.rules.flatMap(rule => rule.treatments))];
-      updateTreatmentList();
+            document.getElementById("ruleList").innerHTML = "";
+            trial.rules.forEach(rule => addRule(rule.type, rule.treatments));
 
-      document.getElementById("ruleList").innerHTML = "";
-      trial.rules.forEach(rule => addRule(rule.type, rule.treatments));
-
-      const saveButton = document.getElementById("saveTrialButton");
-      saveButton.setAttribute("data-index", index);
-  }
-
-  // Re-render trials when page loads
-  window.onload = displaySavedTrials;
-   
-        function renderTrials() {
-          const trials = JSON.parse(localStorage.getItem("trials")) || [];
-          const savedTrials = document.getElementById("savedTrials");
-          savedTrials.innerHTML = "";
-        
-          trials.forEach((trial, index) => {
-            const li = document.createElement("li");
-            li.textContent = `${trial.name} - ${trial.condition}`;
-        
-            const editButton = document.createElement("button");
-            editButton.textContent = "Edit";
-            editButton.onclick = () => editTrial(index);
-        
-            li.appendChild(editButton);
-            savedTrials.appendChild(li);
-          });
+            const saveButton = document.getElementById("saveTrialButton");
+            saveButton.setAttribute("data-index", index);
         }
 
+        // Re-render trials when page loads
+        window.onload = displaySavedTrials;
     </script>
 </body>
 </html>
