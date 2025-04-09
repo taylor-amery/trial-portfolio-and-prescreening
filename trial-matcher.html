@@ -35,7 +35,12 @@
 
         function updateTreatmentList() {
             let treatments = new Set();
-            trials.forEach(trial => trial.treatments.forEach(t => treatments.add(t)));
+            // Loop through the trials and their rules to collect treatments
+            trials.forEach(trial => {
+                trial.rules.forEach(rule => {
+                    rule.treatments.forEach(t => treatments.add(t));
+                });
+            });
             
             const treatmentList = document.getElementById("treatmentList");
             treatmentList.innerHTML = "";
