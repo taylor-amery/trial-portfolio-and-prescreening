@@ -24,7 +24,7 @@ Download the project HTML file.
 
 ## Usage
 
-1. Navigate to https://taylor-amery.github.io/clinical-trial-web-app
+1. Navigate to https://taylor-amery.github.io/trial-portfolio-and-prescreening
 2. Users are able to create a portfolio of clinical trials by selecting Create a Clinical Trial.
 3. Currently, only current prostate cancer treatment options are available to define prior treatment profiles for clinical trials
 4. When you have completed naming and specifying prior therapies for your trial, click Add Trial
