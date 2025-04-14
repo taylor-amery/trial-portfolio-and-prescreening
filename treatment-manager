@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Treatment Manager</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; max-width: 800px; margin: auto; }
+    .card { border: 1px solid #ccc; padding: 20px; border-radius: 10px; box-shadow: 2px 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
+    .input-group { display: flex; align-items: center; margin-bottom: 10px; }
+    input[type="text"] { flex: 1; padding: 8px; margin-right: 10px; }
+    .button { background-color: #007bff; color: white; padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer; }
+    .button.delete { background-color: #dc3545; }
+    .button:hover { opacity: 0.9; }
+    h2 { text-align: center; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <a href="index.html" class="button">Return to Main Page</a>
+    <h2>Treatment Manager</h2>
+    <div id="treatmentList"></div>
+  </div>
+
+  <script>
+    let treatments = JSON.parse(localStorage.getItem("treatments") || "{}");
+
+    function saveTreatments() {
+      localStorage.setItem("treatments", JSON.stringify(treatments));
+      renderTreatments();
+    }
+
+    function deleteTreatment(name) {
+      if (confirm(`Delete treatment "${name}"? This cannot be undone.`)) {
+        delete treatments[name];
+        saveTreatments();
+      }
+    }
+
+    function updateTreatment(oldName, newName) {
+      newName = newName.trim();
+      if (!newName || newName === oldName) return;
+      if (treatments[newName]) {
+        alert("A treatment with this name already exists.");
+        return;
+      }
+
+      treatments[newName] = { name: newName };
+      delete treatments[oldName];
+      saveTreatments();
+    }
+
+    function renderTreatments() {
+      const container = document.getElementById("treatmentList");
+      container.innerHTML = "";
+
+      const names = Object.keys(treatments).sort();
+      if (names.length === 0) {
+        container.innerHTML = "<p>No treatments saved yet.</p>";
+        return;
+      }
+
+      names.forEach(name => {
+        const group = document.createElement("div");
+        group.className = "input-group";
+
+        const input = document.createElement("input");
+        input.type = "text";
+        input.value = name;
+        input.onchange = () => updateTreatment(name, input.value);
+
+        const deleteBtn = document.createElement("button");
+        deleteBtn.className = "button delete";
+        deleteBtn.innerText = "Delete";
+        deleteBtn.onclick = () => deleteTreatment(name);
+
+        group.appendChild(input);
+        group.appendChild(deleteBtn);
+        container.appendChild(group);
+      });
+    }
+
+    renderTreatments();
+  </script>
+</body>
+</html>
