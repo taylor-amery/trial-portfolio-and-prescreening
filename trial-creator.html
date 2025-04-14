@@ -193,24 +193,16 @@
                 editButton.className = "button";
                 editButton.style.marginLeft = "10px";
                 li.appendChild(editButton);
-        
+                
+                const deleteButton = document.createElement("button");
+                deleteButton.textContent = "Delete";
+                deleteButton.style.marginLeft = "10px";
+                deleteButton.onclick = () => deleteTrial(index);
+                li.appendChild(deleteButton);
+                
                 savedTrials.appendChild(li);
             });
-        }            
-        const editButton = document.createElement("button");
-        editButton.textContent = "Edit";
-        editButton.onclick = () => editTrial(index);
-
-        const deleteButton = document.createElement("button");
-        deleteButton.textContent = "Delete";
-        deleteButton.style.marginLeft = "10px";
-        deleteButton.onclick = () => deleteTrial(index);
-          
-        li.appendChild(editButton);
-        li.appendChild(deleteButton);
-        savedTrials.appendChild(li);
-      });
-    }
+        }    
         
     // Reset the form after saving
     function resetForm() {
