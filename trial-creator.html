@@ -161,67 +161,95 @@
         
         // Function to display saved trials
         function displaySavedTrials() {
-          const trials = JSON.parse(localStorage.getItem("trials")) || [];
-          const savedTrials = document.getElementById("savedTrials");
-          savedTrials.innerHTML = "";  // Clear the current list
-        
-          trials.forEach((trial, index) => {
-            const li = document.createElement("li");
-            li.textContent = `${trial.name} - ${trial.description}`;
-            
-            const editButton = document.createElement("button");
-            editButton.textContent = "Edit";
-            editButton.onclick = () => editTrial(index);
-
-            const deleteButton = document.createElement("button");
-            deleteButton.textContent = "Delete";
-            deleteButton.style.marginLeft = "10px";
-            deleteButton.onclick = () => deleteTrial(index);
-              
-            li.appendChild(editButton);
-            li.appendChild(deleteButton);
-            savedTrials.appendChild(li);
-          });
-        }
-        
-        // Reset the form after saving
-        function resetForm() {
-          document.getElementById("trialName").value = "";
-          document.getElementById("trialDescription").value = "";
-          document.getElementById("ruleList").innerHTML = "";
-          updateTreatmentList(); // Treatments stay
-          updateRuleTreatmentOptions(); // Rules stay
-          const saveButton = document.getElementById("saveTrialButton");
-          saveButton.removeAttribute("data-index");
-        }
-        
-        // Function to edit a trial
-        function editTrial(index) {
             const trials = JSON.parse(localStorage.getItem("trials")) || [];
-            const trial = trials[index];
+            const savedTrials = document.getElementById("savedTrials");
+            savedTrials.innerHTML = "";
+        
+            const allTreatments = Object.keys(treatments);
+        
+            trials.forEach((trial, index) => {
+                const li = document.createElement("li");
+        
+                // Find unique treatments covered by trial rules
+                const coveredTreatments = new Set(trial.rules.flatMap(rule => rule.treatments));
+                const isIncomplete = allTreatments.some(t => !coveredTreatments.has(t));
+        
+                // Trial name and description
+                li.innerHTML = `<strong>${trial.name}</strong> - ${trial.description}`;
+        
+                // Add ⚠️ icon with tooltip if incomplete
+                if (isIncomplete) {
+                    const warning = document.createElement("span");
+                    warning.textContent = " ⚠️";
+                    warning.style.cursor = "help";
+                    warning.title = "This trial does not include rules for all treatments.";
+                    li.appendChild(warning);
+                }
+        
+                // Edit button
+                const editButton = document.createElement("button");
+                editButton.textContent = "Edit";
+                editButton.onclick = () => editTrial(index);
+                editButton.className = "button";
+                editButton.style.marginLeft = "10px";
+                li.appendChild(editButton);
+        
+                savedTrials.appendChild(li);
+            });
+        }            
+        const editButton = document.createElement("button");
+        editButton.textContent = "Edit";
+        editButton.onclick = () => editTrial(index);
 
-            document.getElementById("trialName").value = trial.name;
-            document.getElementById("trialDescription").value = trial.description;
+        const deleteButton = document.createElement("button");
+        deleteButton.textContent = "Delete";
+        deleteButton.style.marginLeft = "10px";
+        deleteButton.onclick = () => deleteTrial(index);
+          
+        li.appendChild(editButton);
+        li.appendChild(deleteButton);
+        savedTrials.appendChild(li);
+      });
+    }
+        
+    // Reset the form after saving
+    function resetForm() {
+      document.getElementById("trialName").value = "";
+      document.getElementById("trialDescription").value = "";
+      document.getElementById("ruleList").innerHTML = "";
+      updateTreatmentList(); // Treatments stay
+      updateRuleTreatmentOptions(); // Rules stay
+      const saveButton = document.getElementById("saveTrialButton");
+      saveButton.removeAttribute("data-index");
+    }
+    
+    // Function to edit a trial
+    function editTrial(index) {
+        const trials = JSON.parse(localStorage.getItem("trials")) || [];
+        const trial = trials[index];
 
-            document.getElementById("ruleList").innerHTML = "";
-            trial.rules.forEach(rule => addRule(rule.type, rule.treatments));
+        document.getElementById("trialName").value = trial.name;
+        document.getElementById("trialDescription").value = trial.description;
 
-            const saveButton = document.getElementById("saveTrialButton");
-            saveButton.setAttribute("data-index", index);
+        document.getElementById("ruleList").innerHTML = "";
+        trial.rules.forEach(rule => addRule(rule.type, rule.treatments));
+
+        const saveButton = document.getElementById("saveTrialButton");
+        saveButton.setAttribute("data-index", index);
+    }
+
+    // Function to delete a trial
+    function deleteTrial(index) {
+            if (confirm("Are you sure you want to delete this trial?")) {
+            let trials = JSON.parse(localStorage.getItem("trials")) || [];
+            trials.splice(index, 1); // Remove the trial at the given index
+            localStorage.setItem("trials", JSON.stringify(trials)); // Update storage
+            displaySavedTrials(); // Refresh the list
         }
+    }
 
-        // Function to delete a trial
-        function deleteTrial(index) {
-                if (confirm("Are you sure you want to delete this trial?")) {
-                let trials = JSON.parse(localStorage.getItem("trials")) || [];
-                trials.splice(index, 1); // Remove the trial at the given index
-                localStorage.setItem("trials", JSON.stringify(trials)); // Update storage
-                displaySavedTrials(); // Refresh the list
-            }
-        }
-
-        // Re-render trials when page loads
-        window.onload = displaySavedTrials;
+    // Re-render trials when page loads
+    window.onload = displaySavedTrials;
     </script>
 </body>
 </html>
