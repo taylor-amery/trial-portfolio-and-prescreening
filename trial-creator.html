@@ -14,8 +14,15 @@
         .selected { background-color: #007bff; color: white; }
         ul { padding: 0; list-style: none; }
         li { padding: 8px; border: 1px solid #ddd; margin-top: 5px; border-radius: 5px; background: #f8f8f8; }
-        .input-group { margin-bottom: 10px; }
+        .input-group { margin-bottom: 20px; }
         label { font-weight: bold; }
+        .input-group label { display: block; margin-bottom: 5px; font-weight: bold; }
+        .input-group input[type="text"],
+        .input-group textarea { width: 100%; padding: 10px 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 1rem; box-sizing: border-box; 
+                               transition: border 0.2s, box-shadow 0.2s; }
+        .input-group input[type="text"]:focus,
+        .input-group textarea:focus { border-color: #007bff; box-shadow: 0 0 5px rgba(0, 123, 255, 0.3); outline: none; }
+        textarea { resize: vertical; min-height: 80px; }
     </style>
 </head>
 <body>
