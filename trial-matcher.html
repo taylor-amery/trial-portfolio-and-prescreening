@@ -78,7 +78,14 @@
                         return ruleTreatments.some(t => selected.includes(t));
                     } else if (rule.type === "at-most-one") {
                         return ruleTreatments.filter(t => selected.includes(t)).length <= 1;
+                    } else if (rule.type === "min-count") {
+                        const count = rule.treatments.filter(t => selected.includes(t)).length;
+                        return count >= rule.count;
+                    } else if (rule.type === "max-count") {
+                        const count = rule.treatments.filter(t => selected.includes(t)).length;
+                        return count <= rule.count;
                     }
+
                     return false;
                 });
                 
