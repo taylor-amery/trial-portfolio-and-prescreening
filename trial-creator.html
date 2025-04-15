@@ -40,6 +40,17 @@
         <div id="ruleList"></div>
         <button class="button" onclick="addRule()">Add Rule</button>
         
+        <select id="ruleType">
+          <option value="must">Must have all</option>
+          <option value="must-not">Must NOT have any</option>
+          <option value="at-least-one">Must have at least one</option>
+          <option value="at-most-one">Can have at most one</option>
+          <option value="min-count">Must have at least X</option>
+          <option value="max-count">Can have at most X</option>
+        </select>
+
+        <input type="number" id="ruleCount" placeholder="Count (only if needed)" style="display: none;">
+        
         <button id="saveTrialButton" class="button" onclick="saveTrial()">Save Trial</button>
     </div>
     
@@ -84,7 +95,7 @@
         updateTreatmentList();
       
         // Function to add a rule
-        function addRule(type = "must", selectedTreatments = []) {
+        function addRule(type = "must", selectedTreatments = [], count = null)  {
             const ruleDiv = document.createElement("div");
             ruleDiv.className = "rule";
         
@@ -94,6 +105,8 @@
                 <option value="must-not">MUST NOT include</option>
                 <option value="at-least-one">AT LEAST ONE OF</option>
                 <option value="at-most-one">AT MOST ONE OF</option>
+                <option value="min-count">MUST have at least X</option>
+                <option value="max-count">CAN have at most X</option>
             `;
             ruleSelect.value = type;
         
@@ -102,7 +115,22 @@
             treatmentSelect.innerHTML = Object.keys(treatments).map(t => 
                 `<option value="${t}" ${selectedTreatments.includes(t) ? "selected" : ""}>${t}</option>`
             ).join(" ");
-        
+            
+            const countInput = document.createElement("input");
+            countInput.type = "number";
+            countInput.placeholder = "Enter X";
+            countInput.style.display = "none";
+            countInput.min = 1;
+            countInput.style.marginLeft = "10px";
+
+            if (count !== null) countInput.value = count;
+            
+            ruleSelect.onchange = () => {
+                const val = ruleSelect.value;
+                countInput.style.display = (val === "min-count" || val === "max-count") ? "inline-block" : "none";
+            };
+            ruleSelect.onchange();
+            
             const deleteButton = document.createElement("button");
             deleteButton.textContent = "Delete";
             deleteButton.className = "button";
@@ -111,8 +139,9 @@
         
             ruleDiv.appendChild(ruleSelect);
             ruleDiv.appendChild(treatmentSelect);
+            ruleDiv.appendChild(countInput);
             ruleDiv.appendChild(deleteButton);
-        
+
             document.getElementById("ruleList").appendChild(ruleDiv);
         }
              
@@ -141,9 +170,11 @@
           document.querySelectorAll("#ruleList .rule").forEach(ruleDiv => {
             const type = ruleDiv.querySelector("select").value;
             const selectedTreatments = Array.from(ruleDiv.querySelectorAll("select")[1].selectedOptions).map(o => o.value);
-            rules.push({ type, treatments: selectedTreatments });
+            const countInput = ruleDiv.querySelector("input[type='number']");
+            const count = (type === "min-count" || type === "max-count") ? parseInt(countInput.value, 10) : undefined;     
+            rules.push({ type, treatments: selectedTreatments, counts });
           });
-        
+            
           const trialData = { name, description, rules };
         
           if (editingIndex !== null) {
@@ -226,7 +257,7 @@
         document.getElementById("trialDescription").value = trial.description;
 
         document.getElementById("ruleList").innerHTML = "";
-        trial.rules.forEach(rule => addRule(rule.type, rule.treatments));
+        trial.rules.forEach(rule => addRule(rule.type, rule.treatments, rule.count));
 
         const saveButton = document.getElementById("saveTrialButton");
         saveButton.setAttribute("data-index", index);
