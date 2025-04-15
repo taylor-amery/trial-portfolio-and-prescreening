@@ -163,7 +163,7 @@
             const selectedTreatments = Array.from(ruleDiv.querySelectorAll("select")[1].selectedOptions).map(o => o.value);
             const countInput = ruleDiv.querySelector("input[type='number']");
             const count = (type === "min-count" || type === "max-count") ? parseInt(countInput.value, 10) : undefined;     
-            rules.push({ type, treatments: selectedTreatments, counts });
+            rules.push({ type, treatments: selectedTreatments, count });
           });
             
           const trialData = { name, description, rules };
